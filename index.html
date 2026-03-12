@@ -1,0 +1,946 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MoneyMetrics Pro — Financial Intelligence Suite</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Clash+Display:wght@400;500;600;700&family=Cabinet+Grotesk:wght@300;400;500;700;800&family=JetBrains+Mono:wght@400;600&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+    <link rel="stylesheet" href="../styles/main.css">
+    <link rel="stylesheet" href="../styles/components.css">
+    <link rel="stylesheet" href="../styles/animations.css">
+</head>
+
+<body>
+
+    <!-- TOAST CONTAINER -->
+    <div class="toast-wrap" id="toastWrap"></div>    <!-- ═══ ALERTS MODAL ═══ -->
+    <div class="alert-modal" id="alertModal">
+        <div class="alert-box">
+            <div class="alert-title"><i class="fas fa-bell" style="color:var(--gold)"></i> Smart Alerts</div>
+            <div class="alert-sub">Real-time financial insights & warnings for your portfolio</div>
+            <div class="alert-list" id="alertList"></div>
+            <button class="alert-close-btn" onclick="closeAlerts()">Close Alerts</button>
+        </div>
+    </div>
+
+    <!-- ═══ TICKER ═══ -->
+    <div class="ticker-wrap">
+        <div class="ticker-inner" id="tickerInner">
+            <span class="ticker-item">💰 SENSEX <strong>+0.74%</strong></span>
+            <span class="ticker-sep">•</span>
+            <span class="ticker-item">📈 NIFTY 50 <strong>+0.52%</strong></span>
+            <span class="ticker-sep">•</span>
+            <span class="ticker-item">🪙 GOLD ₹72,450/10g</span>
+            <span class="ticker-sep">•</span>
+            <span class="ticker-item">💵 USD/INR ₹83.42</span>
+            <span class="ticker-sep">•</span>
+            <span class="ticker-item">🛢️ CRUDE $82.10/bbl</span>
+            <span class="ticker-sep">•</span>
+            <span class="ticker-item">₿ BTC ₹58.4L</span>
+            <span class="ticker-sep">•</span>
+            <span class="ticker-item">📊 RBI REPO 6.50%</span>
+            <span class="ticker-sep">•</span>
+            <span class="ticker-item">🏠 HOME LOAN 8.50%</span>
+            <span class="ticker-sep">•</span>
+            <span class="ticker-item">💰 SENSEX <strong>+0.74%</strong></span>
+            <span class="ticker-sep">•</span>
+            <span class="ticker-item">📈 NIFTY 50 <strong>+0.52%</strong></span>
+            <span class="ticker-sep">•</span>
+            <span class="ticker-item">🪙 GOLD ₹72,450/10g</span>
+            <span class="ticker-sep">•</span>
+            <span class="ticker-item">💵 USD/INR ₹83.42</span>
+            <span class="ticker-sep">•</span>
+            <span class="ticker-item">🛢️ CRUDE $82.10/bbl</span>
+            <span class="ticker-sep">•</span>
+            <span class="ticker-item">₿ BTC ₹58.4L</span>
+            <span class="ticker-sep">•</span>
+            <span class="ticker-item">📊 RBI REPO 6.50%</span>
+            <span class="ticker-sep">•</span>
+            <span class="ticker-item">🏠 HOME LOAN 8.50%</span>
+            <span class="ticker-sep">•</span>
+        </div>
+    </div>
+
+    <!-- ═══ HEADER ═══ -->
+    <div class="header fade-up">
+        <a class="brand" href="#">
+            <div class="brand-icon">💎</div>
+            <div>MoneyMetrics <span style="color:var(--gold)">Pro</span>
+                <span class="brand-sub">Financial Intelligence Suite</span>
+            </div>
+        </a>
+        <div class="header-right">
+            <div class="user-tag" id="userTag" style="display:none">
+                <div class="user-tag-avatar" id="userAvatar">A</div>
+                <div class="user-tag-name" id="userName">Guest</div>
+            </div>
+            <button class="hdr-btn gold" onclick="openAlerts()"><i class="fas fa-bell"></i> Alerts <span id="alertBadge"
+                    style="background:var(--red);color:white;border-radius:99px;padding:1px 6px;font-size:0.65rem;font-family:'JetBrains Mono'">3</span></button>
+            <button class="hdr-btn" onclick="exportPDF()"><i class="fas fa-file-pdf"></i> PDF Report</button>
+            <button class="hdr-btn btn-red" onclick="signOut()" id="signOutBtn" style="display:none"><i
+                    class="fas fa-sign-out-alt"></i> Sign Out</button>
+        </div>
+    </div>
+
+    <!-- ═══ NET WORTH HERO ═══ -->
+    <div class="nw-hero fade-up delay-1" id="nwHero">
+        <div class="nw-grid">
+            <div>
+                <div class="nw-label">💎 Estimated Net Worth</div>
+                <div class="nw-amount">₹<span id="nwTotal">0</span></div>
+                <div class="nw-sub">
+                    <span id="nwDelta" class="nw-delta">+₹0 this month</span>
+                    <span style="color:var(--t3)">·</span>
+                    <span id="nwSavings" style="color:var(--cyan)">Savings Rate: 0%</span>
+                </div>
+            </div>
+            <div class="nw-stats">
+                <div>
+                    <div class="nw-stat-val" id="nwIncome">₹0</div>
+                    <div class="nw-stat-lbl">Total Income</div>
+                </div>
+                <div>
+                    <div class="nw-stat-val" id="nwExpense" style="color:var(--red2)">₹0</div>
+                    <div class="nw-stat-lbl">Total Expenses</div>
+                </div>
+                <div>
+                    <div class="nw-stat-val" id="nwBalance" style="color:var(--green)">₹0</div>
+                    <div class="nw-stat-lbl">Net Balance</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══ NAV TABS ═══ -->
+    <div class="nav-tabs fade-up delay-2">
+        <button class="nav-tab active" onclick="showPanel('tracker',this)"><span class="tab-dot"></span>💼
+            Tracker</button>
+        <button class="nav-tab" onclick="showPanel('emi',this)"><span class="tab-dot"></span>🏠 EMI</button>
+        <button class="nav-tab" onclick="showPanel('sip',this)"><span class="tab-dot"></span>📈 SIP</button>
+        <button class="nav-tab" onclick="showPanel('gst',this)"><span class="tab-dot"></span>🧾 GST</button>
+        <button class="nav-tab" onclick="showPanel('budget',this)"><span class="tab-dot"></span>📊 Budget</button>
+        <button class="nav-tab" onclick="showPanel('goals',this)"><span class="tab-dot"></span>🎯 Goals</button>
+        <button class="nav-tab" onclick="showPanel('fx',this)"><span class="tab-dot"></span>💱 FX</button>
+        <button class="nav-tab" onclick="showPanel('tax',this)"><span class="tab-dot"></span>💸 Tax</button>
+        <button class="nav-tab" onclick="showPanel('compare',this)"><span class="tab-dot"></span>⚖️ Compare</button>
+        <button class="nav-tab" onclick="showPanel('predict',this)"><span class="tab-dot"></span>🤖 Predict</button>
+    </div>
+
+    <!-- ═══ MAIN CONTENT ═══ -->
+    <div class="main-content">
+
+        <!-- ══════════ TRACKER ══════════ -->
+        <div id="panel-tracker" class="tab-panel active">
+            <div class="tracker-summary" id="trackerSummary">
+                <div class="sum-card">
+                    <div class="sum-icon">💚</div>
+                    <div class="sum-val" id="sumInc">₹0</div>
+                    <div class="sum-lbl">Income</div>
+                </div>
+                <div class="sum-card">
+                    <div class="sum-icon">🔴</div>
+                    <div class="sum-val" id="sumExp">₹0</div>
+                    <div class="sum-lbl">Expenses</div>
+                </div>
+                <div class="sum-card">
+                    <div class="sum-icon">⚡</div>
+                    <div class="sum-val" id="sumBal">₹0</div>
+                    <div class="sum-lbl">Balance</div>
+                </div>
+            </div>
+            <div class="tracker-grid">
+                <div class="card glow-gold">
+                    <div class="sec-title"><i class="fas fa-plus-circle" style="color:var(--gold)"></i> Add Transaction
+                    </div>
+                    <div class="sec-sub">Log income or expense instantly</div>
+                    <div class="form-group" style="margin-bottom:14px">
+                        <label class="form-label">Type</label>
+                        <div style="display:flex;gap:8px">
+                            <button class="btn btn-green" id="btnInc" onclick="setType('income')" style="flex:1"><i
+                                    class="fas fa-arrow-up"></i> Income</button>
+                            <button class="btn btn-ghost" id="btnExp" onclick="setType('expense')" style="flex:1"><i
+                                    class="fas fa-arrow-down"></i> Expense</button>
+                        </div>
+                    </div>
+                    <div class="form-grid">
+                        <div class="form-group"><label class="form-label">Description</label>
+                            <input class="form-input" id="txDesc" placeholder="e.g. Salary, Rent...">
+                        </div>
+                        <div class="form-group"><label class="form-label">Amount (₹)</label>
+                            <input class="form-input" type="number" id="txAmt" placeholder="e.g. 50000">
+                        </div>
+                    </div>
+                    <div class="form-grid">
+                        <div class="form-group"><label class="form-label">Category</label>
+                            <select class="form-select" id="txCat">
+                                <option>💼 Salary</option>
+                                <option>🏠 Rent</option>
+                                <option>🍔 Food</option>
+                                <option>🚗 Transport</option>
+                                <option>🏥 Health</option>
+                                <option>🎓 Education</option>
+                                <option>🎮 Entertainment</option>
+                                <option>💡 Utilities</option>
+                                <option>📦 Savings</option>
+                                <option>👗 Shopping</option>
+                                <option>💰 Investment</option>
+                                <option>🌟 Other</option>
+                            </select>
+                        </div>
+                        <div class="form-group"><label class="form-label">Date</label>
+                            <input class="form-input" type="date" id="txDate">
+                        </div>
+                    </div>
+                    <div style="display:flex;gap:10px">
+                        <button class="btn btn-gold" onclick="addTransaction()" style="flex:1"><i
+                                class="fas fa-plus"></i> Add Transaction</button>
+                        <button class="btn btn-ghost" onclick="clearTransactions()"><i
+                                class="fas fa-trash"></i></button>
+                    </div>
+                </div>
+                <div class="card">
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+                        <div class="sec-title" style="margin-bottom:0"><i class="fas fa-list"
+                                style="color:var(--cyan)"></i> History</div>
+                        <span id="txCount" style="font-family:'JetBrains Mono';font-size:0.72rem;color:var(--t3)">0
+                            records</span>
+                    </div>
+                    <div class="tx-list" id="txList">
+                        <div class="empty-state"><i class="fas fa-inbox"></i>
+                            <div>No transactions yet</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Charts row -->
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:18px">
+                <div class="card fade-up delay-1">
+                    <div class="sec-title" style="margin-bottom:16px"><i class="fas fa-chart-pie"
+                            style="color:var(--gold)"></i> Expense Breakdown</div>
+                    <div class="chart-wrap" style="height:240px"><canvas id="trackerChart"></canvas></div>
+                </div>
+                <div class="card fade-up delay-2">
+                    <div class="sec-title" style="margin-bottom:16px"><i class="fas fa-chart-bar"
+                            style="color:var(--cyan)"></i> Monthly Trend</div>
+                    <div class="chart-wrap" style="height:240px"><canvas id="monthlyChart"></canvas></div>
+                </div>
+            </div>
+            <div class="card fade-up delay-3" style="margin-top:0">
+                <div class="sec-title" style="margin-bottom:16px"><i class="fas fa-chart-line"
+                        style="color:var(--purple)"></i> Income vs Expense Trend</div>
+                <div class="chart-wrap" style="height:220px"><canvas id="trendChart"></canvas></div>
+            </div>
+        </div>
+
+        <!-- ══════════ EMI ══════════ -->
+        <div id="panel-emi" class="tab-panel">
+            <div class="card glow-gold fade-up">
+                <div class="sec-title"><i class="fas fa-home" style="color:var(--gold)"></i> EMI Calculator <span
+                        class="tag new">Advanced</span></div>
+                <div class="sec-sub">Loan EMI with full amortization schedule & interest breakup</div>
+                <div class="form-grid cols3">
+                    <div class="form-group"><label class="form-label">Loan Amount (₹)</label>
+                        <input class="form-input" id="emiLoan" type="number" placeholder="e.g. 2500000">
+                    </div>
+                    <div class="form-group"><label class="form-label">Annual Interest Rate (%)</label>
+                        <input class="form-input" id="emiRate" type="number" placeholder="e.g. 8.5" step="0.1">
+                    </div>
+                    <div class="form-group"><label class="form-label">Loan Tenure (Years)</label>
+                        <input class="form-input" id="emiYears" type="number" placeholder="e.g. 20">
+                    </div>
+                </div>
+                <div class="form-grid">
+                    <div class="form-group"><label class="form-label">Processing Fee (%)</label>
+                        <input class="form-input" id="emiFee" type="number" placeholder="e.g. 1" step="0.1">
+                    </div>
+                    <div class="form-group"><label class="form-label">Prepayment (₹/yr)</label>
+                        <input class="form-input" id="emiPrepay" type="number" placeholder="Optional">
+                    </div>
+                </div>
+                <button class="btn btn-gold" onclick="calcEMI()"><i class="fas fa-calculator"></i> Calculate
+                    EMI</button>
+                <div class="result-box" id="emiResult">
+                    <div class="result-grid">
+                        <div>
+                            <div class="result-label">Monthly EMI</div>
+                            <div class="result-value" id="emiMonthly">—</div>
+                        </div>
+                        <div>
+                            <div class="result-label">Total Interest</div>
+                            <div class="result-value red" id="emiInterest">—</div>
+                        </div>
+                        <div>
+                            <div class="result-label">Total Amount</div>
+                            <div class="result-value cyan" id="emiTotal">—</div>
+                        </div>
+                        <div>
+                            <div class="result-label">Processing Fee</div>
+                            <div class="result-value" id="emiFeeAmt">—</div>
+                        </div>
+                        <div>
+                            <div class="result-label">Effective APR</div>
+                            <div class="result-value" id="emiAPR">—</div>
+                        </div>
+                        <div>
+                            <div class="result-label">Break-even Month</div>
+                            <div class="result-value green" id="emiBreak">—</div>
+                        </div>
+                    </div>
+                    <div class="stat-chips" id="emiChips"></div>
+                </div>
+            </div>
+
+            <!-- Multi-EMI comparison -->
+            <div class="card glow-gold fade-up delay-1">
+                <div class="sec-title"><i class="fas fa-layer-group" style="color:var(--gold)"></i> Multi-Loan
+                    Comparison</div>
+                <div class="sec-sub">Compare multiple loans simultaneously — find the best deal</div>
+                <div id="multiEmiInputs">
+                    <div class="form-grid cols4" id="multiEmi1" style="margin-bottom:10px">
+                        <div><label class="form-label">Loan Name</label><input class="form-input"
+                                placeholder="Home Loan" id="ml1Name"></div>
+                        <div><label class="form-label">Amount (₹)</label><input class="form-input" type="number"
+                                placeholder="2500000" id="ml1Amt"></div>
+                        <div><label class="form-label">Rate (%)</label><input class="form-input" type="number"
+                                placeholder="8.5" step="0.1" id="ml1Rate"></div>
+                        <div><label class="form-label">Years</label><input class="form-input" type="number"
+                                placeholder="20" id="ml1Years"></div>
+                    </div>
+                    <div class="form-grid cols4" id="multiEmi2" style="margin-bottom:10px">
+                        <div><label class="form-label">Loan Name</label><input class="form-input" placeholder="Car Loan"
+                                id="ml2Name"></div>
+                        <div><label class="form-label">Amount (₹)</label><input class="form-input" type="number"
+                                placeholder="800000" id="ml2Amt"></div>
+                        <div><label class="form-label">Rate (%)</label><input class="form-input" type="number"
+                                placeholder="9.5" step="0.1" id="ml2Rate"></div>
+                        <div><label class="form-label">Years</label><input class="form-input" type="number"
+                                placeholder="5" id="ml2Years"></div>
+                    </div>
+                    <div class="form-grid cols4" id="multiEmi3" style="margin-bottom:10px">
+                        <div><label class="form-label">Loan Name</label><input class="form-input"
+                                placeholder="Personal Loan" id="ml3Name"></div>
+                        <div><label class="form-label">Amount (₹)</label><input class="form-input" type="number"
+                                placeholder="300000" id="ml3Amt"></div>
+                        <div><label class="form-label">Rate (%)</label><input class="form-input" type="number"
+                                placeholder="14" step="0.1" id="ml3Rate"></div>
+                        <div><label class="form-label">Years</label><input class="form-input" type="number"
+                                placeholder="3" id="ml3Years"></div>
+                    </div>
+                </div>
+                <button class="btn btn-gold" onclick="calcMultiEMI()"><i class="fas fa-balance-scale"></i> Compare All
+                    Loans</button>
+                <div id="multiEmiResult" style="display:none;margin-top:16px">
+                    <div class="multi-emi-grid" id="multiEmiList"></div>
+                    <div class="emi-total-bar" id="emiTotalBar" style="margin-top:14px"></div>
+                </div>
+            </div>
+
+            <div class="card fade-up delay-1" id="emiChartCard" style="display:none">
+                <div class="sec-title" style="margin-bottom:18px">Payment Breakdown</div>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:center">
+                    <div class="chart-wrap" style="height:220px"><canvas id="emiChart"></canvas></div>
+                    <div id="emiChartLegend"></div>
+                </div>
+            </div>
+            <div class="card fade-up delay-2" id="emiTimelineCard" style="display:none">
+                <div class="sec-title" style="margin-bottom:16px"><i class="fas fa-chart-area"
+                        style="color:var(--cyan)"></i> Amortization Timeline</div>
+                <div class="chart-wrap" style="height:240px"><canvas id="emiTimelineChart"></canvas></div>
+            </div>
+            <div class="card fade-up delay-3" id="amortCard" style="display:none">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+                    <div class="sec-title" style="margin:0">Amortization Schedule</div>
+                    <button class="btn btn-ghost" style="padding:7px 14px;font-size:0.75rem" onclick="exportAmort()"><i
+                            class="fas fa-download"></i> Export</button>
+                </div>
+                <div class="amort-table-wrap">
+                    <table class="amort-table" id="amortTable">
+                        <thead>
+                            <tr>
+                                <th>Month</th>
+                                <th>EMI</th>
+                                <th>Principal</th>
+                                <th>Interest</th>
+                                <th>Balance</th>
+                            </tr>
+                        </thead>
+                        <tbody id="amortBody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ══════════ SIP ══════════ -->
+        <div id="panel-sip" class="tab-panel">
+            <div class="card glow-cyan fade-up">
+                <div class="sec-title"><i class="fas fa-chart-line" style="color:var(--cyan)"></i> SIP Calculator <span
+                        class="tag ai">AI Insights</span></div>
+                <div class="sec-sub">Systematic Investment Plan with inflation-adjusted projections & predictions</div>
+                <div class="form-grid cols3">
+                    <div class="form-group"><label class="form-label">Monthly Investment (₹)</label>
+                        <input class="form-input" id="sipAmt" type="number" placeholder="e.g. 10000">
+                    </div>
+                    <div class="form-group"><label class="form-label">Expected Return (% p.a.)</label>
+                        <input class="form-input" id="sipRate" type="number" placeholder="e.g. 12" step="0.1">
+                    </div>
+                    <div class="form-group"><label class="form-label">Duration (Years)</label>
+                        <input class="form-input" id="sipYears" type="number" placeholder="e.g. 15">
+                    </div>
+                </div>
+                <div class="form-grid">
+                    <div class="form-group"><label class="form-label">Annual Step-Up (%)</label>
+                        <input class="form-input" id="sipStep" type="number" placeholder="e.g. 10 (optional)"
+                            step="0.1">
+                    </div>
+                    <div class="form-group"><label class="form-label">Inflation Rate (% p.a.)</label>
+                        <input class="form-input" id="sipInflation" type="number" placeholder="e.g. 6" step="0.1">
+                    </div>
+                </div>
+                <button class="btn btn-cyan" onclick="calcSIP()"><i class="fas fa-rocket"></i> Project Returns</button>
+                <div class="result-box" id="sipResult">
+                    <div class="result-grid">
+                        <div>
+                            <div class="result-label">Future Value</div>
+                            <div class="result-value cyan" id="sipFV">—</div>
+                        </div>
+                        <div>
+                            <div class="result-label">Total Invested</div>
+                            <div class="result-value" id="sipInvested">—</div>
+                        </div>
+                        <div>
+                            <div class="result-label">Total Returns</div>
+                            <div class="result-value green" id="sipReturns">—</div>
+                        </div>
+                        <div>
+                            <div class="result-label">Inflation-Adj. Value</div>
+                            <div class="result-value" id="sipReal">—</div>
+                        </div>
+                        <div>
+                            <div class="result-label">CAGR</div>
+                            <div class="result-value cyan" id="sipCAGR">—</div>
+                        </div>
+                        <div>
+                            <div class="result-label">Wealth Multiplier</div>
+                            <div class="result-value" style="color:var(--gold)" id="sipMultiplier">—</div>
+                        </div>
+                    </div>
+                    <div class="stat-chips" id="sipChips"></div>
+                    <div class="pred-card" id="sipPred" style="display:none">
+                        <div class="pred-title">🤖 AI Growth Predictions</div>
+                        <div class="pred-grid" id="sipPredGrid"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="card fade-up delay-1" id="sipChartCard" style="display:none">
+                <div class="sec-title" style="margin-bottom:18px">Growth Projection</div>
+                <div class="chart-wrap" style="height:300px"><canvas id="sipChart"></canvas></div>
+            </div>
+            <div class="card fade-up delay-2" id="sipAnnualCard" style="display:none">
+                <div class="sec-title" style="margin-bottom:18px"><i class="fas fa-chart-bar"
+                        style="color:var(--gold)"></i> Annual Growth Milestones</div>
+                <div class="growth-grid" id="sipAnnualGrid"></div>
+                <div class="chart-wrap" style="height:240px;margin-top:16px"><canvas id="sipBarChart"></canvas></div>
+            </div>
+        </div>
+
+        <!-- ══════════ GST ══════════ -->
+        <div id="panel-gst" class="tab-panel">
+            <div class="card glow-green fade-up">
+                <div class="sec-title"><i class="fas fa-receipt" style="color:var(--green)"></i> GST Calculator</div>
+                <div class="sec-sub">Calculate GST inclusive/exclusive with HSN code lookup</div>
+                <div class="form-grid">
+                    <div class="form-group"><label class="form-label">Amount (₹)</label>
+                        <input class="form-input" id="gstAmt" type="number" placeholder="Enter amount">
+                    </div>
+                    <div class="form-group"><label class="form-label">GST Rate</label>
+                        <select class="form-select" id="gstRate">
+                            <option value="0">0% — Essential Goods</option>
+                            <option value="5">5% — Basic Necessities</option>
+                            <option value="12">12% — Standard Goods</option>
+                            <option value="18" selected>18% — Most Services</option>
+                            <option value="28">28% — Luxury / Demerit</option>
+                        </select>
+                    </div>
+                    <div class="form-group"><label class="form-label">Calculation Mode</label>
+                        <select class="form-select" id="gstMode">
+                            <option value="excl">Exclusive (Add GST to Price)</option>
+                            <option value="incl">Inclusive (GST included in Price)</option>
+                        </select>
+                    </div>
+                    <div class="form-group"><label class="form-label">State (for IGST/CGST/SGST)</label>
+                        <select class="form-select" id="gstState">
+                            <option value="same">Same State (CGST+SGST)</option>
+                            <option value="diff">Different State (IGST)</option>
+                        </select>
+                    </div>
+                </div>
+                <button class="btn btn-green" onclick="calcGST()"><i class="fas fa-calculator"></i> Calculate
+                    GST</button>
+                <div class="result-box" id="gstResult">
+                    <div class="result-grid">
+                        <div>
+                            <div class="result-label">Base Price</div>
+                            <div class="result-value" id="gstBase">—</div>
+                        </div>
+                        <div>
+                            <div class="result-label">GST Amount</div>
+                            <div class="result-value red" id="gstTax">—</div>
+                        </div>
+                        <div>
+                            <div class="result-label">Final Price</div>
+                            <div class="result-value green" id="gstFinal">—</div>
+                        </div>
+                        <div>
+                            <div class="result-label">CGST (½)</div>
+                            <div class="result-value" id="gstCGST">—</div>
+                        </div>
+                        <div>
+                            <div class="result-label">SGST (½)</div>
+                            <div class="result-value" id="gstSGST">—</div>
+                        </div>
+                        <div>
+                            <div class="result-label">IGST</div>
+                            <div class="result-value" id="gstIGST">—</div>
+                        </div>
+                    </div>
+                    <div id="gstVisual" style="margin-top:18px;display:none">
+                        <div style="height:10px;background:var(--ink4);border-radius:99px;overflow:hidden">
+                            <div id="gstVisBar"
+                                style="height:100%;border-radius:99px;background:linear-gradient(90deg,var(--green),var(--cyan));transition:width 0.6s">
+                            </div>
+                        </div>
+                        <div
+                            style="display:flex;justify-content:space-between;font-size:0.7rem;color:var(--t3);margin-top:4px">
+                            <span id="gstVisBase">Base</span><span id="gstVisTax">Tax</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card fade-up delay-1">
+                <div class="sec-title" style="margin-bottom:16px">GST Slab Reference</div>
+                <table class="cmp-table">
+                    <thead>
+                        <tr>
+                            <th>Slab</th>
+                            <th>Category</th>
+                            <th>Examples</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>0%</td>
+                            <td>Exempt</td>
+                            <td>Fresh fruits, vegetables, milk, eggs</td>
+                        </tr>
+                        <tr>
+                            <td>5%</td>
+                            <td>Essential</td>
+                            <td>Sugar, tea, edible oil, medicines</td>
+                        </tr>
+                        <tr>
+                            <td>12%</td>
+                            <td>Standard</td>
+                            <td>Butter, cheese, computers, mobiles</td>
+                        </tr>
+                        <tr>
+                            <td>18%</td>
+                            <td>Most Goods</td>
+                            <td>IT services, restaurants, telecom</td>
+                        </tr>
+                        <tr>
+                            <td>28%</td>
+                            <td>Luxury</td>
+                            <td>Cars, AC, tobacco, premium goods</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- ══════════ BUDGET ══════════ -->
+        <div id="panel-budget" class="tab-panel">
+            <div class="card glow-gold fade-up">
+                <div class="sec-title"><i class="fas fa-wallet" style="color:var(--gold)"></i> Budget Planner <span
+                        class="tag ai">50-30-20 Rule</span></div>
+                <div class="sec-sub">Set monthly budgets per category and track your spending</div>
+                <div class="form-grid">
+                    <div class="form-group"><label class="form-label">Monthly Income (₹)</label>
+                        <input class="form-input" id="budgetIncome" type="number" placeholder="e.g. 80000"
+                            oninput="applyBudgetRule()">
+                    </div>
+                    <div class="form-group"><label class="form-label">Budget Category</label>
+                        <select class="form-select" id="budgetCat">
+                            <option>🍔 Food</option>
+                            <option>🚗 Transport</option>
+                            <option>🏠 Housing</option>
+                            <option>🏥 Health</option>
+                            <option>🎓 Education</option>
+                            <option>🎮 Entertainment</option>
+                            <option>👗 Shopping</option>
+                            <option>💡 Utilities</option>
+                            <option>📦 Savings</option>
+                        </select>
+                    </div>
+                    <div class="form-group"><label class="form-label">Budget Limit (₹)</label>
+                        <input class="form-input" id="budgetLimit" type="number" placeholder="e.g. 15000">
+                    </div>
+                    <div class="form-group" style="justify-content:flex-end">
+                        <button class="btn btn-gold btn-full" onclick="addBudget()"><i class="fas fa-plus"></i> Set
+                            Budget</button>
+                    </div>
+                </div>
+            </div>
+            <div class="card fade-up delay-1" id="budgetCard" style="display:none">
+                <div class="sec-title" style="margin-bottom:6px">50-30-20 Rule Suggestion</div>
+                <div class="sec-sub" id="budgetRuleSub">Based on your income</div>
+                <div id="budgetRuleList"></div>
+                <div class="sep"></div>
+                <div class="sec-title" style="font-size:1rem;margin-bottom:14px">Your Budget vs Spending</div>
+                <div id="budgetList"></div>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:18px">
+                <div class="card fade-up delay-2" id="budgetChartCard" style="display:none">
+                    <div class="sec-title" style="margin-bottom:18px">Spending Distribution</div>
+                    <div class="chart-wrap" style="height:220px"><canvas id="budgetChart"></canvas></div>
+                    <div id="budgetChartLegend" style="margin-top:14px"></div>
+                </div>
+                <div class="card fade-up delay-2" id="budgetBarCard" style="display:none">
+                    <div class="sec-title" style="margin-bottom:18px">Budget vs Actual</div>
+                    <div class="chart-wrap" style="height:220px"><canvas id="budgetBarChart"></canvas></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ══════════ GOALS ══════════ -->
+        <div id="panel-goals" class="tab-panel">
+            <div class="card glow-cyan fade-up">
+                <div class="sec-title"><i class="fas fa-bullseye" style="color:var(--cyan)"></i> Savings Goals</div>
+                <div class="sec-sub">Set, track and achieve your financial milestones</div>
+                <div class="form-grid cols3">
+                    <div><label class="form-label">Goal Name</label>
+                        <input class="form-input" id="goalName" placeholder="e.g. Emergency Fund">
+                    </div>
+                    <div><label class="form-label">Target Amount (₹)</label>
+                        <input class="form-input" type="number" id="goalTarget" placeholder="e.g. 300000">
+                    </div>
+                    <div><label class="form-label">Saved So Far (₹)</label>
+                        <input class="form-input" type="number" id="goalSaved" placeholder="e.g. 75000">
+                    </div>
+                </div>
+                <div class="form-grid">
+                    <div><label class="form-label">Target Date</label>
+                        <input class="form-input" type="date" id="goalDate">
+                    </div>
+                    <div><label class="form-label">Icon</label>
+                        <select class="form-select" id="goalIcon">
+                            <option value="🏠">🏠 Home</option>
+                            <option value="🚗">🚗 Car</option>
+                            <option value="✈️">✈️ Travel</option>
+                            <option value="🎓">🎓 Education</option>
+                            <option value="💍">💍 Wedding</option>
+                            <option value="🏥">🏥 Medical</option>
+                            <option value="📦">📦 Emergency Fund</option>
+                            <option value="🌟">🌟 Other</option>
+                        </select>
+                    </div>
+                </div>
+                <button class="btn btn-cyan" onclick="addGoal()"><i class="fas fa-plus"></i> Add Goal</button>
+            </div>
+            <!-- Goals Overview Chart -->
+            <div class="card fade-up delay-1" id="goalsChartCard" style="display:none">
+                <div class="sec-title" style="margin-bottom:16px"><i class="fas fa-chart-bar"
+                        style="color:var(--cyan)"></i> Goals Progress Overview</div>
+                <div class="chart-wrap" style="height:220px"><canvas id="goalsChart"></canvas></div>
+            </div>
+            <div class="goal-grid" id="goalGrid">
+                <div class="empty-state" style="grid-column:1/-1"><i class="fas fa-bullseye"></i>
+                    <div>No goals yet. Add your first goal!</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ══════════ FX ══════════ -->
+        <div id="panel-fx" class="tab-panel">
+            <div class="card glow-cyan fade-up">
+                <div class="sec-title"><i class="fas fa-globe" style="color:var(--cyan)"></i> Currency Converter</div>
+                <div class="sec-sub">Convert between major world currencies with live rates*</div>
+                <div class="fx-grid">
+                    <div>
+                        <div class="form-group" style="margin-bottom:12px"><label class="form-label">Amount</label>
+                            <input class="form-input" id="fxAmt" type="number" placeholder="e.g. 1000"
+                                oninput="convertFX()">
+                        </div>
+                        <div class="form-group"><label class="form-label">From Currency</label>
+                            <select class="form-select" id="fxFrom" onchange="convertFX()"></select>
+                        </div>
+                    </div>
+                    <div class="fx-arrow"><i class="fas fa-exchange-alt"></i></div>
+                    <div>
+                        <div class="form-group" style="margin-bottom:12px"><label class="form-label">Converted
+                                Amount</label>
+                            <input class="form-input" id="fxResult" readonly placeholder="—" style="color:var(--cyan)">
+                        </div>
+                        <div class="form-group"><label class="form-label">To Currency</label>
+                            <select class="form-select" id="fxTo" onchange="convertFX()"></select>
+                        </div>
+                    </div>
+                </div>
+                <div class="fx-rate-display" id="fxRateDisplay">Select currencies to see exchange rate</div>
+                <div style="margin-top:8px;font-size:0.72rem;color:var(--t3)">*Rates are approximate reference values.
+                </div>
+            </div>
+            <div class="card fade-up delay-1">
+                <div class="sec-title" style="margin-bottom:16px">Quick Cross Rates (vs INR)</div>
+                <div id="fxRateGrid"
+                    style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px"></div>
+            </div>
+        </div>
+
+        <!-- ══════════ TAX ══════════ -->
+        <div id="panel-tax" class="tab-panel">
+            <div class="card glow-gold fade-up">
+                <div class="sec-title"><i class="fas fa-landmark" style="color:var(--gold)"></i> Income Tax Calculator
+                    <span class="tag new">FY 2024-25</span></div>
+                <div class="sec-sub">New Tax Regime vs Old Tax Regime comparison</div>
+                <div class="form-grid cols3">
+                    <div><label class="form-label">Annual Income (₹)</label>
+                        <input class="form-input" id="taxIncome" type="number" placeholder="e.g. 1200000">
+                    </div>
+                    <div><label class="form-label">HRA Exemption (₹)</label>
+                        <input class="form-input" id="taxHRA" type="number" placeholder="e.g. 120000">
+                    </div>
+                    <div><label class="form-label">80C Investments (₹)</label>
+                        <input class="form-input" id="tax80C" type="number" placeholder="Max ₹1,50,000">
+                    </div>
+                </div>
+                <div class="form-grid">
+                    <div><label class="form-label">80D Health Insurance (₹)</label>
+                        <input class="form-input" id="tax80D" type="number" placeholder="Max ₹25,000">
+                    </div>
+                    <div><label class="form-label">Home Loan Interest (₹)</label>
+                        <input class="form-input" id="taxHL" type="number" placeholder="Max ₹2,00,000">
+                    </div>
+                </div>
+                <button class="btn btn-gold" onclick="calcTax()"><i class="fas fa-calculator"></i> Calculate
+                    Tax</button>
+                <div class="result-box" id="taxResult">
+                    <div class="result-grid">
+                        <div>
+                            <div class="result-label">Old Regime Tax</div>
+                            <div class="result-value red" id="taxOld">—</div>
+                        </div>
+                        <div>
+                            <div class="result-label">New Regime Tax</div>
+                            <div class="result-value cyan" id="taxNew">—</div>
+                        </div>
+                        <div>
+                            <div class="result-label">Recommended</div>
+                            <div class="result-value green" id="taxBetter">—</div>
+                        </div>
+                        <div>
+                            <div class="result-label">You Save</div>
+                            <div class="result-value" style="color:var(--gold)" id="taxSave">—</div>
+                        </div>
+                        <div>
+                            <div class="result-label">Old Eff. Rate</div>
+                            <div class="result-value small" id="taxOldRate">—</div>
+                        </div>
+                        <div>
+                            <div class="result-label">New Eff. Rate</div>
+                            <div class="result-value small" id="taxNewRate">—</div>
+                        </div>
+                    </div>
+                    <div class="stat-chips" id="taxChips"></div>
+                </div>
+            </div>
+            <div class="card fade-up delay-1" id="taxChartCard" style="display:none">
+                <div class="sec-title" style="margin-bottom:18px">Tax Regime Comparison</div>
+                <div class="chart-wrap" style="height:260px"><canvas id="taxChart"></canvas></div>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:18px">
+                <div class="card fade-up delay-2">
+                    <div class="sec-title" style="margin-bottom:14px;font-size:1rem">New Tax Regime (2024-25)</div>
+                    <table class="cmp-table" style="font-size:0.8rem">
+                        <thead>
+                            <tr>
+                                <th>Income Slab</th>
+                                <th>Rate</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Up to ₹3L</td>
+                                <td>Nil</td>
+                            </tr>
+                            <tr>
+                                <td>₹3L – ₹7L</td>
+                                <td>5%</td>
+                            </tr>
+                            <tr>
+                                <td>₹7L – ₹10L</td>
+                                <td>10%</td>
+                            </tr>
+                            <tr>
+                                <td>₹10L – ₹12L</td>
+                                <td>15%</td>
+                            </tr>
+                            <tr>
+                                <td>₹12L – ₹15L</td>
+                                <td>20%</td>
+                            </tr>
+                            <tr>
+                                <td>Above ₹15L</td>
+                                <td>30%</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="card fade-up delay-2">
+                    <div class="sec-title" style="margin-bottom:14px;font-size:1rem">Old Tax Regime</div>
+                    <table class="cmp-table" style="font-size:0.8rem">
+                        <thead>
+                            <tr>
+                                <th>Income Slab</th>
+                                <th>Rate</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Up to ₹2.5L</td>
+                                <td>Nil</td>
+                            </tr>
+                            <tr>
+                                <td>₹2.5L – ₹5L</td>
+                                <td>5%</td>
+                            </tr>
+                            <tr>
+                                <td>₹5L – ₹10L</td>
+                                <td>20%</td>
+                            </tr>
+                            <tr>
+                                <td>Above ₹10L</td>
+                                <td>30%</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ══════════ COMPARE ══════════ -->
+        <div id="panel-compare" class="tab-panel">
+            <div class="card glow-cyan fade-up">
+                <div class="sec-title"><i class="fas fa-balance-scale" style="color:var(--cyan)"></i> Investment
+                    Comparison Engine</div>
+                <div class="sec-sub">Compare FD, RD, PPF, NPS, MF SIP and Stocks side by side</div>
+                <div class="form-grid cols3">
+                    <div><label class="form-label">Investment Amount (₹)</label>
+                        <input class="form-input" id="cmpAmt" type="number" placeholder="e.g. 100000">
+                    </div>
+                    <div><label class="form-label">Duration (Years)</label>
+                        <input class="form-input" id="cmpYears" type="number" placeholder="e.g. 10">
+                    </div>
+                    <div style="display:flex;align-items:flex-end">
+                        <button class="btn btn-cyan btn-full" onclick="compareInvestments()"><i
+                                class="fas fa-chart-bar"></i> Compare</button>
+                    </div>
+                </div>
+                <div id="cmpResult" style="display:none;margin-top:20px">
+                    <table class="cmp-table">
+                        <thead>
+                            <tr>
+                                <th>Instrument</th>
+                                <th>Rate</th>
+                                <th>Maturity Value</th>
+                                <th>Returns</th>
+                                <th>Tax</th>
+                                <th>Risk</th>
+                            </tr>
+                        </thead>
+                        <tbody id="cmpBody"></tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="card fade-up delay-1" id="cmpChartCard" style="display:none">
+                <div class="sec-title" style="margin-bottom:18px">Returns Comparison</div>
+                <div class="chart-wrap" style="height:300px"><canvas id="cmpChart"></canvas></div>
+            </div>
+            <div class="card fade-up delay-2" id="cmpLineCard" style="display:none">
+                <div class="sec-title" style="margin-bottom:18px">Growth Projection Over Time</div>
+                <div class="chart-wrap" style="height:280px"><canvas id="cmpLineChart"></canvas></div>
+            </div>
+        </div>
+
+        <!-- ══════════ PREDICT ══════════ -->
+        <div id="panel-predict" class="tab-panel">
+            <div class="card"
+                style="background:linear-gradient(135deg,rgba(179,107,255,0.1),rgba(0,229,255,0.06));border-color:rgba(179,107,255,0.3)">
+                <div class="sec-title"><i class="fas fa-robot" style="color:var(--purple2)"></i> AI Financial Predictor
+                    <span class="tag ai">ML Powered</span></div>
+                <div class="sec-sub">Advanced algorithms predict your financial trajectory using your transaction data
+                </div>
+                <div class="form-grid cols3">
+                    <div><label class="form-label">Forecast Horizon (Months)</label>
+                        <input class="form-input" id="predMonths" type="number" placeholder="e.g. 12" value="12">
+                    </div>
+                    <div><label class="form-label">Expected Income Growth (%/yr)</label>
+                        <input class="form-input" id="predGrowth" type="number" placeholder="e.g. 10" value="10"
+                            step="0.1">
+                    </div>
+                    <div><label class="form-label">Expected Expense Growth (%/yr)</label>
+                        <input class="form-input" id="predExpGrowth" type="number" placeholder="e.g. 7" value="7"
+                            step="0.1">
+                    </div>
+                </div>
+                <button class="btn"
+                    style="background:linear-gradient(135deg,var(--purple),var(--cyan));color:var(--ink)"
+                    onclick="runPrediction()">
+                    <i class="fas fa-brain"></i> Run AI Prediction
+                </button>
+            </div>
+            <div id="predResults" style="display:none">
+                <div class="pred-card fade-up" style="margin-bottom:18px">
+                    <div class="pred-title">📊 Predicted KPIs</div>
+                    <div class="pred-grid" id="predKPIs"></div>
+                </div>
+                <div class="card fade-up delay-1">
+                    <div class="sec-title" style="margin-bottom:16px"><i class="fas fa-chart-line"
+                            style="color:var(--purple)"></i> Net Worth Forecast</div>
+                    <div class="chart-wrap" style="height:300px"><canvas id="predChart"></canvas></div>
+                </div>
+                <div class="card fade-up delay-2">
+                    <div class="sec-title" style="margin-bottom:18px"><i class="fas fa-chart-bar"
+                            style="color:var(--gold)"></i> Annual Sales / Income Growth Analysis</div>
+                    <div class="growth-grid" id="annualGrowthGrid"></div>
+                    <div class="chart-wrap" style="height:260px;margin-top:16px"><canvas
+                            id="annualGrowthChart"></canvas></div>
+                </div>
+                <div class="card fade-up delay-3">
+                    <div class="sec-title" style="margin-bottom:16px"><i class="fas fa-exclamation-triangle"
+                            style="color:var(--gold)"></i> Risk Analysis & Smart Recommendations</div>
+                    <div id="predRecs"></div>
+                </div>
+            </div>
+        </div>
+
+    </div><!-- end main-content -->
+
+    <script src="../js/app.js"></script>
+    <script src="../js/expenditure.js"></script>
+    <script src="../js/loans.js"></script>
+    <script src="../js/sip.js"></script>
+    <script src="../js/budget.js"></script>
+    <script src="../js/charts.js"></script>
+</body>
+
+</html>
+
+
+
+
